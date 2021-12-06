@@ -94,11 +94,12 @@ class NPM3DDataset(Dataset):
         ###########################
 
         # Dict from labels to names
-        self.label_to_names = {0: 'unclassified_barriers',
-                               1: 'poles_bollards',
-                               2: 'buildings_cars',
-                               3: 'trashcans_pedestrians'
-                               4: 'natural'}
+        self.label_to_names = {0: 'unclassified',
+                               1: 'poles_bollard',
+                               2: 'buildings_barrier',
+                               3: 'trashcans_pedestrian'
+                               4: 'car'
+                               5: 'natural'}
 
 
         # Initiate a bunch of variables concerning class labels
