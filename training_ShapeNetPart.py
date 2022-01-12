@@ -54,7 +54,7 @@ class ShapeNetPartConfig(Config):
 
     # Dataset name in the format 'ShapeNetPart_Object' to segment an object class independently or 'ShapeNetPart_multi'
     # to segment all objects with a single model.
-    dataset = 'ShapeNetPart_Object'
+    dataset = 'ShapeNetPart_Pole'
 
     # Number of classes in the dataset (This value is overwritten by dataset class when initiating input pipeline).
     num_classes = None
