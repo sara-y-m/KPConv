@@ -30,6 +30,7 @@ import json
 import os
 
 # PLY reader
+from plyfile import PlyData
 from utils.ply import read_ply, write_ply
 
 # OS functions
@@ -112,7 +113,8 @@ class ShapeNetPartDataset(Dataset):
                                12: 'Pistol',
                                13: 'Rocket',
                                14: 'Skateboard',
-                               15: 'Table'}
+                               15: 'Table'
+                               16: 'Pole'}
 
         self.init_labels()
 
@@ -120,7 +122,7 @@ class ShapeNetPartDataset(Dataset):
         self.ignored_labels = np.array([])
 
         # Number of parts for each object
-        self.num_parts = [4, 2, 2, 4, 4, 3, 3, 2, 4, 2, 6, 2, 3, 3, 3, 3]
+        self.num_parts = [4, 2, 2, 4, 4, 3, 3, 2, 4, 2, 6, 2, 3, 3, 3, 4]
 
         # Type of dataset (one of the class names or 'multi')
         self.ShapeNetPartType = class_name
@@ -165,99 +167,144 @@ class ShapeNetPartDataset(Dataset):
         print('\nPreparing ply files')
         t0 = time.time()
 
-        # List of class names and corresponding synset
-        category_and_synsetoffset = [['Airplane', '02691156'],
-                                     ['Bag', '02773838'],
-                                     ['Cap', '02954340'],
-                                     ['Car', '02958343'],
-                                     ['Chair', '03001627'],
-                                     ['Earphone', '03261776'],
-                                     ['Guitar', '03467517'],
-                                     ['Knife', '03624134'],
-                                     ['Lamp', '03636649'],
-                                     ['Laptop', '03642806'],
-                                     ['Motorbike', '03790512'],
-                                     ['Mug', '03797390'],
-                                     ['Pistol', '03948459'],
-                                     ['Rocket', '04099429'],
-                                     ['Skateboard', '04225987'],
-                                     ['Table', '04379243']]
-        synsetoffset_to_category = {s: n for n, s in category_and_synsetoffset}
+#         List of class names and corresponding synset
+#         category_and_synsetoffset = [['Airplane', '02691156'],
+#                                      ['Bag', '02773838'],
+#                                      ['Cap', '02954340'],
+#                                      ['Car', '02958343'],
+#                                      ['Chair', '03001627'],
+#                                      ['Earphone', '03261776'],
+#                                      ['Guitar', '03467517'],
+#                                      ['Knife', '03624134'],
+#                                      ['Lamp', '03636649'],
+#                                      ['Laptop', '03642806'],
+#                                      ['Motorbike', '03790512'],
+#                                      ['Mug', '03797390'],
+#                                      ['Pistol', '03948459'],
+#                                      ['Rocket', '04099429'],
+#                                      ['Skateboard', '04225987'],
+#                                      ['Table', '04379243']]
+#         synsetoffset_to_category = {s: n for n, s in category_and_synsetoffset}
 
         # Collect splits
         # **************
 
-        # Train split
-        split_file = join(self.path, 'train_test_split', 'shuffled_train_file_list.json')
-        with open(split_file, 'r') as f:
-            train_files = json.load(f)
-        train_files = [name[11:] for name in train_files]
+#         # Train split
+#         split_file = join(self.path, 'train_test_split', 'shuffled_train_file_list.json')
+#         with open(split_file, 'r') as f:
+#             train_files = json.load(f)
+#         train_files = [name[11:] for name in train_files]
 
-        # Val split
-        split_file = join(self.path, 'train_test_split', 'shuffled_val_file_list.json')
-        with open(split_file, 'r') as f:
-            val_files = json.load(f)
-        val_files = [name[11:] for name in val_files]
+#         # Val split
+#         split_file = join(self.path, 'train_test_split', 'shuffled_val_file_list.json')
+#         with open(split_file, 'r') as f:
+#             val_files = json.load(f)
+#         val_files = [name[11:] for name in val_files]
 
-        # Test split
-        split_file = join(self.path, 'train_test_split', 'shuffled_test_file_list.json')
-        with open(split_file, 'r') as f:
-            test_files = json.load(f)
-        test_files = [name[11:] for name in test_files]
+#         # Test split
+#         split_file = join(self.path, 'train_test_split', 'shuffled_test_file_list.json')
+#         with open(split_file, 'r') as f:
+#             test_files = json.load(f)
+#         test_files = [name[11:] for name in test_files]
 
         # Convert to ply
         # **************
 
-        splits = ['train', 'val', 'test']
-        split_files = [train_files, val_files, test_files]
+        split_files = ['train_ply', 'val_ply', 'test_ply']
 
-        for split, files in zip(splits, split_files):
-
-            # Create folder for this split
-            ply_path = join(self.path, '{:s}_ply'.format(split))
-            if not exists(ply_path):
-                makedirs(ply_path)
-
-
-            N = len(files)
-            class_nums = {n: 0 for n, s in category_and_synsetoffset}
-            for i, file in enumerate(files):
-
-                # Get class
-                synset = file.split('/')[0]
-                class_name = synsetoffset_to_category[synset]
-
-                # Check if file already exists
-                ply_name = join(ply_path, '{:s}_{:04d}.ply'.format(class_name, class_nums[class_name]))
-                if exists(ply_name):
-                    class_nums[class_name] += 1
-                    continue
-
-                # Get filename
-                file_name = file.split('/')[1]
-
-                # Load points and labels
-                points = np.loadtxt(join(self.path, synset, 'points', file_name + '.pts')).astype(np.float32)
-                labels = np.loadtxt(join(self.path, synset, 'points_label', file_name + '.seg')).astype(np.int32)
-
+        for split in split_files:
+            os.chdir(join(self.path,split)
+            file_list= os.listdir()
+            file_list=[x for x in file_list if x.endswith('.ply')]
+            source=os.getcwd()
+            if not os.path.exists('modified_'+folder):
+                os.makedirs('modified_'+folder)
+            else:
+                list_temp = os.listdir('modified_'+folder)
+                    for file in list_temp:
+                        os.remove(file)
+            target= os.getcwd()+'/modified_'+folder
+            file_list = os.listdir()
+            file_list = [x for x in file_list if x.endswith('.ply')]
+            for file in file_list:
+                cloud = PlyData.read(file)
+                points = np.vstack((cloud['vertex']['x'], cloud['vertex']['y'], cloud['vertex']['z'])).T.astype(np.float32)
+             
                 # Center and rescale point for 1m radius
                 pmin = np.min(points, axis=0)
                 pmax = np.max(points, axis=0)
                 points -= (pmin + pmax) / 2
                 scale = np.max(np.linalg.norm(points, axis=1))
                 points *= 1.0 / scale
-
+                     
                 # Switch y and z dimensions
                 points = points[:, [0, 2, 1]]
+                labels= np.vstack(cloud['vertex']['label'])
+                final=np.concatenate((points,labels), axis = 1)
+                prop = [('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('label', 'u1')]
+                vertex_all = np.empty(len(final), dtype=prop)
+                for i_prop in range(0, 4):
+                    vertex_all[prop[i_prop][0]] = final[:, i_prop]
+                    # NOTE: CloudCompare has a bug that only BINARY format is compatible
+                    ply = PlyData([PlyElement.describe(vertex_all, 'vertex')], text=False)
+                    filename_ply = 'modified_'+ file
+                    ply.write(filename_ply)
+           file_list=os.listdir(source)
+           file_list=[x for x in file_list if x.endswith('.ply')]
+           for file in file_list:
+             if file.startswith('modified_p'):
+                shutil.move(os.path.join(source, file), target)
+                    
 
-                # Save in ply format
-                write_ply(ply_name, (points, labels), ['x', 'y', 'z', 'label'])
+#             # Create folder for this split
+#             ply_path = join(self.path, '{:s}_ply'.format(split))
+#             if not exists(ply_path):
+#                 makedirs(ply_path)
+
+
+#             N = len(files)
+#             class_nums = {n: 0 for n, s in category_and_synsetoffset}
+#             for i, file in enumerate(files):
+
+#                 # Get class
+#                 synset = file.split('/')[0]
+#                 class_name = synsetoffset_to_category[synset]
+
+#                 # Check if file already exists
+#                 ply_name = join(ply_path, '{:s}_{:04d}.ply'.format(class_name, class_nums[class_name]))
+#                 if exists(ply_name):
+#                     class_nums[class_name] += 1
+#                     continue
+
+#                 # Get filename
+#                 file_name = file.split('/')[1]
+
+#                 # Load points and labels
+#                     points = np.vstack((cloud['vertex']['x'], cloud['vertex']['y'], cloud['vertex']['z'])).astype(np.float32)
+#                     labels = np.vstack(cloud['vertex']['label']).T.astype(np.int32)
+
+#                 # Center and rescale point for 1m radius
+#                     pmin = np.min(points, axis=0)
+#                     pmax = np.max(points, axis=0)
+#                     points -= (pmin + pmax) / 2
+#                     scale = np.max(np.linalg.norm(points, axis=1))
+#                     points *= 1.0 / scale
+
+#                     # Switch y and z dimensions
+#                     points = points[:, [0, 2, 1]]
+
+#                     # Save in ply format
+#                     write_ply(ply, (points, labels), ['x', 'y', 'z', 'label'])
 
                 # Update class number
-                class_nums[class_name] += 1
+#                 class_nums[class_name] += 1
 
                 # Display
-                print('preparing {:s} ply: {:.1f}%'.format(split, 100 * i / N))
+#                 print('preparing {:s} ply: {:.1f}%'.format(split, 100 * i / N))
+        
+
+        
+ 
 
         print('Done in {:.1f}s'.format(time.time() - t0))
 
@@ -295,7 +342,7 @@ class ShapeNetPartDataset(Dataset):
         else:
 
             # Collect training file names
-            split_path = join(self.path, '{:s}_ply'.format('train'))
+            split_path = join(self.path, '{:s}_ply'.format('train'), 'modified_train_ply')
             names = [f[:-4] for f in listdir(split_path) if f[-4:] == '.ply']
             names = np.sort(names)
 
@@ -318,7 +365,7 @@ class ShapeNetPartDataset(Dataset):
             self.input_labels['training'] = np.array([self.name_to_label[name] for name in label_names])
 
             # Collect Validation file names
-            split_path = join(self.path, '{:s}_ply'.format('val'))
+            split_path = join(self.path, '{:s}_ply'.format('val'), 'modified_val_ply')
             names = [f[:-4] for f in listdir(split_path) if f[-4:] == '.ply']
             names = np.sort(names)
 
@@ -371,7 +418,7 @@ class ShapeNetPartDataset(Dataset):
         else:
 
             # Collect test file names
-            split_path = join(self.path, '{:s}_ply'.format('test'))
+            split_path = join(self.path, '{:s}_ply'.format('test'), modified_test_ply')
             names = [f[:-4] for f in listdir(split_path) if f[-4:] == '.ply']
             names = np.sort(names)
 
