@@ -124,7 +124,7 @@ class ShapeNetPartDataset(Dataset):
         self.ignored_labels = np.array([])
 
         # Number of parts for each object
-        self.num_parts = [4, 2, 2, 4, 4, 3, 3, 2, 4, 2, 6, 2, 3, 3, 3, 4]
+        self.num_parts = [4, 2, 2, 4, 4, 3, 3, 2, 4, 2, 6, 2, 3, 3, 3, 3, 6]
 
         # Type of dataset (one of the class names or 'multi')
         self.ShapeNetPartType = class_name
