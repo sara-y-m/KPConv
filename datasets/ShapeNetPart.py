@@ -12,6 +12,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #
 #      Hugues THOMAS - 11/06/2018
+       Sara Yousefimashhoor - 18-01-2022
 #
 
 
@@ -149,7 +150,7 @@ class ShapeNetPartDataset(Dataset):
         ##########################
 
         # Path of the folder containing ply files
-        self.path = 'Data/ShapeNetPart/shapenetcore_partanno_segmentation_benchmark_v0'
+        self.path = 'Data/ShapeNetPart/shapenetcore_partanno_segmentation_benchmark_v0/plo_ply'
 
         # Number of threads
         self.num_threads = input_threads
@@ -183,7 +184,8 @@ class ShapeNetPartDataset(Dataset):
 #                                      ['Pistol', '03948459'],
 #                                      ['Rocket', '04099429'],
 #                                      ['Skateboard', '04225987'],
-#                                      ['Table', '04379243']]
+#                                      ['Table', '04379243'],
+#                                      ['Pole', '66666666']]
 #         synsetoffset_to_category = {s: n for n, s in category_and_synsetoffset}
 
         # Collect splits
@@ -207,10 +209,11 @@ class ShapeNetPartDataset(Dataset):
 #             test_files = json.load(f)
 #         test_files = [name[11:] for name in test_files]
 
-        # Convert to ply
+        # Rotate and Scale the plys
         # **************
 
         split_files = ['train_ply', 'val_ply', 'test_ply']
+        
 
         for split in split_files:
             os.chdir(join(self.path,split)
@@ -306,7 +309,7 @@ class ShapeNetPartDataset(Dataset):
         
  
 
-        print('Done in {:.1f}s'.format(time.time() - t0))
+        print('Done preparing the .ply files in {:.1f}s'.format(time.time() - t0))
 
     def load_subsampled_clouds(self, subsampling_parameter):
         """
