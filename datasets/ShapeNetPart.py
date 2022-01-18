@@ -363,7 +363,7 @@ class ShapeNetPartDataset(Dataset):
 
             # Get labels
             label_names = ['_'.join(n.split('_')[:-1]) for n in names]
-            self.input_labels['training'] = np.array([self.name_to_label[name] for name in label_names])
+            self.input_labels['training'] = np.array([16 for name in label_names])
 
             # Collect Validation file names
             split_path = join(self.path, '{:s}_ply'.format('val'), 'modified_val_ply')
@@ -387,7 +387,7 @@ class ShapeNetPartDataset(Dataset):
             # Get labels
             label_names = ['_'.join(n.split('_')[:-1]) for n in names]
             self.input_labels['training'] = np.hstack((self.input_labels['training'],
-                                                       np.array([self.name_to_label[name] for name in label_names])))
+                                                       np.array([16 for name in label_names])))
 
             # Save for later use
             with open(filename, 'wb') as file:
@@ -439,7 +439,7 @@ class ShapeNetPartDataset(Dataset):
 
             # Get labels
             label_names = ['_'.join(n.split('_')[:-1]) for n in names]
-            self.input_labels['test'] = np.array([self.name_to_label[name] for name in label_names])
+            self.input_labels['test'] = np.array([16 for name in label_names])
 
             # Save for later use
             with open(filename, 'wb') as file:
