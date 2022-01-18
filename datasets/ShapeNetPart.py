@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #
 #      Hugues THOMAS - 11/06/2018
-       Sara Yousefimashhoor - 18-01-2022
+#       Sara Yousefimashhoor - 18-01-2022
 #
 
 
@@ -29,9 +29,10 @@ import time
 import pickle
 import json
 import os
+import shutil
 
 # PLY reader
-from plyfile import PlyData
+from plyfile import PlyData, PlyElement
 from utils.ply import read_ply, write_ply
 
 # OS functions
@@ -114,7 +115,7 @@ class ShapeNetPartDataset(Dataset):
                                12: 'Pistol',
                                13: 'Rocket',
                                14: 'Skateboard',
-                               15: 'Table'
+                               15: 'Table',
                                16: 'Pole'}
 
         self.init_labels()
@@ -212,51 +213,48 @@ class ShapeNetPartDataset(Dataset):
         # Rotate and Scale the plys
         # **************
 
-        split_files = ['train_ply', 'val_ply', 'test_ply']
+#         split_files = ['train_ply','val_ply','test_ply']
         
 
-        for split in split_files:
-            os.chdir(join(self.path,split)
-            file_list= os.listdir()
-            file_list=[x for x in file_list if x.endswith('.ply')]
-            source=os.getcwd()
-            if not os.path.exists('modified_'+folder):
-                os.makedirs('modified_'+folder)
-            else:
-                list_temp = os.listdir('modified_'+folder)
-                    for file in list_temp:
-                        os.remove(file)
-            target= os.getcwd()+'/modified_'+folder
-            file_list = os.listdir()
-            file_list = [x for x in file_list if x.endswith('.ply')]
-            for file in file_list:
-                cloud = PlyData.read(file)
-                points = np.vstack((cloud['vertex']['x'], cloud['vertex']['y'], cloud['vertex']['z'])).T.astype(np.float32)
+#         for split in split_files:
+#             os.chdir(join(self.path,split))
+#             file_list= os.listdir()
+#             file_list=[x for x in file_list if x.endswith('.ply')]
+#             source=os.getcwd()
+#             if not os.path.exists('modified_'+ split):
+#               os.makedirs('modified_'+ split)
+#             else:
+#               target= os.getcwd()+'/modified_'+ split
+#               list_temp = os.listdir(target)
+#               for file in list_temp:
+#                      if os.path.isfile(file):
+#                             os.remove(file)
+#             for file in file_list:
+#               cloud = PlyData.read(file)
+#               points = np.vstack((cloud['vertex']['x'], cloud['vertex']['y'], cloud['vertex']['z'])).T.astype(np.float32)
              
-                # Center and rescale point for 1m radius
-                pmin = np.min(points, axis=0)
-                pmax = np.max(points, axis=0)
-                points -= (pmin + pmax) / 2
-                scale = np.max(np.linalg.norm(points, axis=1))
-                points *= 1.0 / scale
+#               # Center and rescale point for 1m radius
+#               pmin = np.min(points, axis=0)
+#               pmax = np.max(points, axis=0)
+#               points -= (pmin + pmax) / 2
+#               scale = np.max(np.linalg.norm(points, axis=1))
+#               points *= 1.0 / scale
                      
-                # Switch y and z dimensions
-                points = points[:, [0, 2, 1]]
-                labels= np.vstack(cloud['vertex']['label'])
-                final=np.concatenate((points,labels), axis = 1)
-                prop = [('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('label', 'u1')]
-                vertex_all = np.empty(len(final), dtype=prop)
-                for i_prop in range(0, 4):
-                    vertex_all[prop[i_prop][0]] = final[:, i_prop]
-                    # NOTE: CloudCompare has a bug that only BINARY format is compatible
-                    ply = PlyData([PlyElement.describe(vertex_all, 'vertex')], text=False)
-                    filename_ply = 'modified_'+ file
-                    ply.write(filename_ply)
-           file_list=os.listdir(source)
-           file_list=[x for x in file_list if x.endswith('.ply')]
-           for file in file_list:
-             if file.startswith('modified_p'):
-                shutil.move(os.path.join(source, file), target)
+#                 # Switch y and z dimensions
+#               points = points[:, [0, 2, 1]]
+#               labels= np.vstack(cloud['vertex']['label'])
+#               final=np.concatenate((points,labels), axis = 1)
+#               prop = [('x', 'f4'), ('y', 'f4'), ('z', 'f4'), ('label', 'u1')]
+#               vertex_all = np.empty(len(final), dtype=prop)
+#               for i_prop in range(0, 4):
+#                 vertex_all[prop[i_prop][0]] = final[:, i_prop]
+#                 # NOTE: CloudCompare has a bug that only BINARY format is compatible
+#                 ply = PlyData([PlyElement.describe(vertex_all, 'vertex')], text=False)
+#                 filename_ply = 'modified_'+ file
+#                 ply.write(filename_ply)
+#             for file in file_list:
+#               if file.startswith('modified_p'):
+#               shutil.move(os.path.join(source, file), target)
                     
 
 #             # Create folder for this split
@@ -421,7 +419,7 @@ class ShapeNetPartDataset(Dataset):
         else:
 
             # Collect test file names
-            split_path = join(self.path, '{:s}_ply'.format('test'), modified_test_ply')
+            split_path = join(self.path, '{:s}_ply'.format('test'), 'modified_test_ply')
             names = [f[:-4] for f in listdir(split_path) if f[-4:] == '.ply']
             names = np.sort(names)
 
