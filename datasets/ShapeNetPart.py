@@ -588,7 +588,7 @@ class ShapeNetPartDataset(Dataset):
             if split == 'training':
                 gen_indices = np.random.permutation(self.num_train)
             elif split == 'validation':
-                gen_indices = np.random.permutation(self.num_test)
+                gen_indices = np.random.permutation(self.num_val)
             elif split == 'test':
                 gen_indices = np.arange(self.num_test)
             else:
